@@ -5,10 +5,10 @@ import (
 	"managep/pkg/repository"
 )
 
-type TaskService struct {
+type ProjectService struct {
 	repo repository.Tasks
 }
 
-func NewTaskService(repo repository.Tasks) *TaskService {
+func NewProjectService(repo repository.Tasks) *TaskService {
 	return &TaskService{repo: repo}
 }

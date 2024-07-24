@@ -1,26 +1,26 @@
 package service
 
 import (
-	todo "todo-app"
-	"todo-app/pkg/repository"
+	_ "managep"
+	"managep/pkg/repository"
 )
 
-type Authorization interface {
-	CreateUser(user todo.User) (int, error)
-	GenerateToken(userName string, password string) (string, error)
-	ParseToken(token string) (int, error)
+type Users interface {
 }
-type TodoList interface{}
-type Todo interface{}
-
+type Tasks interface {
+}
+type Projects interface {
+}
 type Service struct {
-	Authorization Authorization
-	TodoList      TodoList
-	Todo          Todo
+	UserService    Users
+	TaskService    Tasks
+	ProjectService Projects
 }
 
 func NewService(repository *repository.Repository) *Service {
 	return &Service{
-		Authorization: NewAuthService(repository.Authorization),
+		UserService:    NewUserService(repository.UserService),
+		TaskService:    NewTaskService(repository.TaskService),
+		ProjectService: NewProjectService(repository.ProjectService),
 	}
 }
