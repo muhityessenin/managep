@@ -6,9 +6,9 @@ import (
 )
 
 type ProjectService struct {
-	repo repository.Tasks
+	repo repository.Projects
 }
 
-func NewProjectService(repo repository.Tasks) *TaskService {
-	return &TaskService{repo: repo}
+func NewProjectService(repo repository.Projects) *ProjectService {
+	return &ProjectService{repo: repo}
 }

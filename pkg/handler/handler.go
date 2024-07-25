@@ -15,34 +15,34 @@ func NewHandler(services *service.Service) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
-	user := router.Group("/user")
+	user := router.Group("/users")
 	{
-		user.GET("/users", h.getUser)
-		user.POST("/users", h.createUser)
-		user.DELETE("/users/:id", h.deleteUser)
-		user.GET("/users/:id", h.getUserById)
-		user.PUT("/users/:id", h.updateUser)
-		user.GET("/users/:id/tasks", h.getTasksForUser)
-		user.GET("/users/search", h.searchUser)
+		user.GET("", h.getUser)
+		user.POST("", h.createUser)
+		user.DELETE("/:id", h.deleteUser)
+		user.GET("/:id", h.getUserById)
+		user.PUT("/:id", h.updateUser)
+		user.GET("/:id/tasks", h.getTasksForUser)
+		user.GET("/search", h.searchUser)
 	}
-	task := router.Group("/task")
+	task := router.Group("/tasks")
 	{
-		task.GET("/tasks", h.getTask)
-		task.POST("/tasks", h.createTask)
-		task.DELETE("/tasks/:id", h.deleteTask)
-		task.GET("/tasks/:id", h.getTaskById)
-		task.PUT("/tasks/:id", h.updateTask)
-		task.GET("/tasks/search", h.searchTask)
+		task.GET("", h.getTask)
+		task.POST("", h.createTask)
+		task.DELETE("/:id", h.deleteTask)
+		task.GET("/:id", h.getTaskById)
+		task.PUT("/:id", h.updateTask)
+		task.GET("/search", h.searchTask)
 	}
-	project := router.Group("/project")
+	project := router.Group("/projects")
 	{
-		project.GET("/projects", h.getProject)
-		project.POST("/projects", h.createProject)
-		project.DELETE("/projects/:id", h.deleteProject)
-		project.GET("/projects/:id", h.getProjectById)
-		project.PUT("/projects/:id", h.updateProject)
-		project.GET("/projects/search", h.searchProject)
-		project.GET("/projects/:id/tasks", h.getTasksForProject)
+		project.GET("", h.getProject)
+		project.POST("", h.createProject)
+		project.DELETE("/:id", h.deleteProject)
+		project.GET("/:id", h.getProjectById)
+		project.PUT("/:id", h.updateProject)
+		project.GET("/search", h.searchProject)
+		project.GET("/:id/tasks", h.getTasksForProject)
 	}
 	return router
 }
