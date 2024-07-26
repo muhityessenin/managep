@@ -20,7 +20,7 @@ CREATE TABLE projects
 CREATE TABLE tasks
 (
     id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name            varchar(255) not null,
+    name                    varchar(255) not null,
     description             text,
     priority                varchar(50) not null,
     state                   varchar(50),

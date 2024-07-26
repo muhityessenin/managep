@@ -8,6 +8,6 @@ type Task struct {
 	State             string `json:"state"`
 	ResponsiblePerson string `json:"responsible_person"`
 	Project           string `json:"project"`
-	CreatedAt         string `json:"created_at"`
-	FinishedAt        string `json:"finished_at"`
+	CreatedAt         string `json:"created_at" datetime_format:"YYYY-MM-DD"`
+	FinishedAt        string `json:"finished_at" datetime_format:"YYYY-MM-DD"`
 }

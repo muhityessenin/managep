@@ -54,13 +54,16 @@ func (r *UserPostgres) GetUser() ([]model.User, error) {
 }
 
 func (r *UserPostgres) GetUserById(id string) (model.User, error) {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", usersTable)
-	rows, err := r.db.Query(query, id)
+	check := fmt.Sprintf("SELECT id FROM %s WHERE id = $1", usersTable)
+	err := r.db.QueryRow(check, id).Scan(&id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return model.User{}, errors.New("user not found")
 		}
+		return model.User{}, err
 	}
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", usersTable)
+	rows, err := r.db.Query(query, id)
 	defer rows.Close()
 	var user model.User
 	for rows.Next() {
@@ -76,55 +79,122 @@ func (r *UserPostgres) GetUserById(id string) (model.User, error) {
 
 func (r *UserPostgres) CreateUser(user *model.User) (int, error) {
 	if r.Check(user) == false {
-		return 404, errors.New("user is already registered")
+		return http.StatusBadRequest, errors.New("user is already registered")
 	}
 	query := fmt.Sprintf("INSERT INTO %s (full_name, email, registration_date, role) VALUES ($1, $2, $3, $4)", usersTable)
 	_, err := r.db.Exec(query, user.FullName, user.Email, user.RegistrationDate, user.Role)
-	if err != nil {
-		return 404, err
-	}
-	return 201, nil
-}
-
-func (r *UserPostgres) UpdateUser(user *model.User, id string) (int, error) {
-	checkQuery := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", usersTable)
-	err := r.db.QueryRow(checkQuery, id).Scan(&id)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return 404, errors.New("user not found")
-		}
-	}
-	query := fmt.Sprintf("UPDATE %s SET full_name = $1, email = $2, registration_date = $3, role = $4 WHERE id = $5", usersTable)
-	_, err = r.db.Exec(query, user.FullName, user.Email, user.RegistrationDate, user.Role, id)
-	if err != nil {
-		return 404, err
-	}
-	return 201, nil
-}
-
-func (r *UserPostgres) DeleteUser(id string) (int, error) {
-	checkQuery := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", usersTable)
-	err := r.db.QueryRow(checkQuery, id).Scan(&id)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return 404, errors.New("user not found")
-		}
-	}
-	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1", usersTable)
-	_, err = r.db.Exec(query, id)
 	if err != nil {
 		return http.StatusBadRequest, err
 	}
 	return 201, nil
 }
 
-func (r *UserPostgres) GetTasksForUser(id string) ([]model.Task, error) {
-	checkQuery := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", usersTable)
+func (r *UserPostgres) UpdateUser(user *model.User, id string) (int, error) {
+	checkQuery := fmt.Sprintf("SELECT id FROM %s WHERE id = $1", usersTable)
 	err := r.db.QueryRow(checkQuery, id).Scan(&id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return []model.Task{}, errors.New("user not found")
+			return 404, errors.New("user not found")
+		}
+		return http.StatusBadRequest, err
+	}
+	query := fmt.Sprintf("UPDATE %s SET full_name = $1, email = $2, registration_date = $3, role = $4 WHERE id = $5", usersTable)
+	_, err = r.db.Exec(query, user.FullName, user.Email, user.RegistrationDate, user.Role, id)
+	if err != nil {
+		return http.StatusBadRequest, err
+	}
+	return http.StatusOK, nil
+}
+
+func (r *UserPostgres) DeleteUser(id string) (int, error) {
+	checkQuery := fmt.Sprintf("SELECT id FROM %s WHERE id = $1", usersTable)
+	err := r.db.QueryRow(checkQuery, id).Scan(&id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 404, errors.New("user not found")
+		}
+		return http.StatusBadRequest, err
+	}
+	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1", usersTable)
+	_, err = r.db.Exec(query, id)
+	if err != nil {
+		return http.StatusBadRequest, err
+	}
+	return http.StatusOK, nil
+}
+
+func (r *UserPostgres) GetTasksForUser(id string) ([]model.Task, error) {
+	checkQuery := fmt.Sprintf("SELECT id FROM %s WHERE id = $1", usersTable)
+	err := r.db.QueryRow(checkQuery, id).Scan(&id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return make([]model.Task, 0), errors.New("user not found")
+		}
+		return make([]model.Task, 0), err
+	}
+	query := fmt.Sprintf("SELECT * FROM %s WHERE responsible_person_id = $1", tasksTable)
+	rows, err := r.db.Query(query, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return make([]model.Task, 0), errors.New("no tasks found")
+		}
+		return nil, err
+	}
+	defer rows.Close()
+	var tasks []model.Task
+	for rows.Next() {
+		var task model.Task
+		if err := rows.Scan(&task.Id, &task.Name, &task.Description, &task.Priority, &task.State, &task.ResponsiblePerson, &task.Project, &task.CreatedAt, &task.FinishedAt); err != nil {
+			return make([]model.Task, 0), err
+		}
+		tasks = append(tasks, task)
+	}
+	return tasks, nil
+}
+
+func (r *UserPostgres) SearchUser(query, queryType string) ([]model.User, error) {
+	var users []model.User
+	var q string
+	if queryType == "name" {
+		q = fmt.Sprintf("SELECT * FROM %s WHERE full_name = $1", usersTable)
+		checkQuery := fmt.Sprintf("SELECT id FROM %s WHERE full_name = $1", usersTable)
+		var id string
+		err := r.db.QueryRow(checkQuery, query).Scan(&id)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return make([]model.User, 0), errors.New("user not found")
+			}
+			return make([]model.User, 0), err
+		}
+	} else {
+		q = fmt.Sprintf("SELECT * FROM %s WHERE email = $1", usersTable)
+		checkQuery := fmt.Sprintf("SELECT id FROM %s WHERE email = $1", usersTable)
+		var id string
+		err := r.db.QueryRow(checkQuery, query).Scan(&id)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return make([]model.User, 0), errors.New("user not found")
+			}
+			return make([]model.User, 0), err
 		}
 	}
-	return []model.Task{}, nil
+	rows, err := r.db.Query(q, query)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return make([]model.User, 0), errors.New("no users found")
+		}
+		return make([]model.User, 0), err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var user model.User
+		if err := rows.Scan(&user.ID, &user.FullName, &user.Email, &user.RegistrationDate, &user.Role); err != nil {
+			return make([]model.User, 0), err
+		}
+		users = append(users, user)
+	}
+	if err := rows.Err(); err != nil {
+		return make([]model.User, 0), err
+	}
+	return users, nil
 }

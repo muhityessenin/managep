@@ -15,5 +15,20 @@ func NewTaskService(repo repository.Tasks) *TaskService {
 }
 
 func (s *TaskService) CreateTask(task *model.Task) (int, error) {
-	return 200, nil
+	return s.repo.CreateTask(task)
+}
+
+func (s *TaskService) GetTask() ([]model.Task, error) {
+	return s.repo.GetTask()
+}
+
+func (s *TaskService) GetTaskById(id string) (model.Task, error) {
+	return s.repo.GetTaskById(id)
+}
+func (s *TaskService) UpdateTask(task *model.Task, id string) (int, error) {
+	return s.repo.UpdateTask(task, id)
+}
+
+func (s *TaskService) DeleteTask(id string) (int, error) {
+	return s.repo.DeleteTask(id)
 }
