@@ -49,6 +49,6 @@ func (u *UserService) GetTasksForUser(id string) ([]model.Task, error) {
 	return u.repo.GetTasksForUser(id)
 }
 
-func (u *UserService) SearchUser(query, queryType string) ([]model.User, error) {
+func (u *UserService) SearchUser(query, queryType string) (model.User, error) {
 	return u.repo.SearchUser(query, queryType)
 }

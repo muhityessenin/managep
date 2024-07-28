@@ -32,6 +32,19 @@ func (t *TaskPostgres) Check(task *model.Task) bool {
 	return false
 }
 
+func (t *TaskPostgres) IsTaskExist(id string) (bool, error) {
+	query := fmt.Sprintf("SELECT 1 FROM %s WHERE id=$1", tasksTable)
+	var exists bool
+	err := t.db.QueryRow(query, id).Scan(&exists)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, sql.ErrNoRows
+		}
+		return false, err
+	}
+	return true, nil
+}
+
 func (t *TaskPostgres) CreateTask(task *model.Task) (int, error) {
 	if t.Check(task) == false {
 		return http.StatusBadRequest, errors.New("task is already registered")
@@ -42,7 +55,7 @@ func (t *TaskPostgres) CreateTask(task *model.Task) (int, error) {
 		fmt.Printf("Error creating task: %v", err.Error())
 		return http.StatusBadRequest, err
 	}
-	return 201, nil
+	return http.StatusCreated, nil
 }
 
 func (t *TaskPostgres) GetTask() ([]model.Task, error) {
@@ -63,16 +76,15 @@ func (t *TaskPostgres) GetTask() ([]model.Task, error) {
 	if err := rows.Err(); err != nil {
 		return []model.Task{}, err
 	}
+	if len(tasks) == 0 {
+		return nil, sql.ErrNoRows
+	}
 	return tasks, nil
 }
 
 func (t *TaskPostgres) GetTaskById(id string) (model.Task, error) {
-	checkQuery := fmt.Sprintf("SELECT id FROM %s WHERE id = $1", tasksTable)
-	err := t.db.QueryRow(checkQuery, id).Scan(&id)
+	_, err := t.IsTaskExist(id)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return model.Task{}, errors.New("task not found")
-		}
 		return model.Task{}, err
 	}
 	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", tasksTable)
@@ -91,11 +103,11 @@ func (t *TaskPostgres) GetTaskById(id string) (model.Task, error) {
 }
 
 func (t *TaskPostgres) UpdateTask(task *model.Task, id string) (int, error) {
-	checkQuery := fmt.Sprintf("SELECT id FROM %s WHERE id = $1", tasksTable)
-	err := t.db.QueryRow(checkQuery, id).Scan(&id)
+	_, err := t.IsTaskExist(id)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return 404, errors.New("task not found")
+		errors.Is(err, sql.ErrNoRows)
+		{
+			return http.StatusNotFound, err
 		}
 		return http.StatusBadRequest, err
 	}
@@ -108,18 +120,58 @@ func (t *TaskPostgres) UpdateTask(task *model.Task, id string) (int, error) {
 }
 
 func (t *TaskPostgres) DeleteTask(id string) (int, error) {
-	checkQuery := fmt.Sprintf("SELECT id FROM %s WHERE id = $1", tasksTable)
-	err := t.db.QueryRow(checkQuery, id).Scan(&id)
+	_, err := t.IsTaskExist(id)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return 404, errors.New("task not found")
-		}
-		return 404, err
+		return http.StatusNotFound, err
 	}
 	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1", tasksTable)
 	_, err = t.db.Exec(query, id)
 	if err != nil {
-		return 404, err
+		return http.StatusBadRequest, err
 	}
 	return http.StatusOK, nil
+}
+
+func (t *TaskPostgres) SearchTask(query, queryType string) ([]model.Task, error) {
+	var tasks []model.Task
+	var err error
+	var q string
+	var checkQuery string
+	var exists bool
+	if queryType == "title" {
+		q = fmt.Sprintf("SELECT * FROM %s WHERE name = $1", tasksTable)
+		checkQuery = fmt.Sprintf("SELECT 1 FROM %s WHERE name = $1", tasksTable)
+	} else if queryType == "status" {
+		q = fmt.Sprintf("SELECT * FROM %s WHERE state = $1", tasksTable)
+		checkQuery = fmt.Sprintf("SELECT 1 FROM %s WHERE state = $1", tasksTable)
+	} else if queryType == "priority" {
+		q = fmt.Sprintf("SELECT * FROM %s WHERE priority = $1", tasksTable)
+		checkQuery = fmt.Sprintf("SELECT 1 FROM %s WHERE priority = $1", tasksTable)
+	} else if queryType == "assignee" {
+		q = fmt.Sprintf("SELECT * FROM %s WHERE responsible_person_id = $1", tasksTable)
+		checkQuery = fmt.Sprintf("SELECT 1 FROM %s WHERE responsible_person_id = $1", tasksTable)
+	} else if queryType == "project" {
+		q = fmt.Sprintf("SELECT * FROM %s WHERE project_id = $1", tasksTable)
+		checkQuery = fmt.Sprintf("SELECT 1 FROM %s WHERE project_id = $1", tasksTable)
+	}
+	err = t.db.QueryRow(checkQuery, query).Scan(&exists)
+	if err != nil {
+		return make([]model.Task, 0), sql.ErrNoRows
+	}
+	rows, err := t.db.Query(q, query)
+	if err != nil {
+		return make([]model.Task, 0), err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var task model.Task
+		if err := rows.Scan(&task.Id, &task.Name, &task.Description, &task.Priority, &task.State, &task.ResponsiblePerson, &task.Project, &task.CreatedAt, &task.FinishedAt); err != nil {
+			return make([]model.Task, 0), err
+		}
+		tasks = append(tasks, task)
+	}
+	if err := rows.Err(); err != nil {
+		return make([]model.Task, 0), err
+	}
+	return tasks, nil
 }

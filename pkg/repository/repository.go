@@ -13,7 +13,7 @@ type Users interface {
 	UpdateUser(user *model.User, id string) (int, error)
 	DeleteUser(id string) (int, error)
 	GetTasksForUser(id string) ([]model.Task, error)
-	SearchUser(query, queryType string) ([]model.User, error)
+	SearchUser(query, queryType string) (model.User, error)
 }
 type Tasks interface {
 	GetTask() ([]model.Task, error)
@@ -21,9 +21,16 @@ type Tasks interface {
 	GetTaskById(id string) (model.Task, error)
 	UpdateTask(task *model.Task, id string) (int, error)
 	DeleteTask(id string) (int, error)
+	SearchTask(query, queryType string) ([]model.Task, error)
 }
 type Projects interface {
+	GetProject() ([]model.Project, error)
 	CreateProject(project *model.Project) (int, error)
+	GetProjectById(id string) (model.Project, error)
+	UpdateProject(project *model.Project, id string) (int, error)
+	DeleteProject(id string) (int, error)
+	SearchProject(query, queryType string) ([]model.Project, error)
+	GetTasksForProject(projectId string) ([]model.Task, error)
 }
 
 type Repository struct {

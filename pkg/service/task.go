@@ -32,3 +32,7 @@ func (s *TaskService) UpdateTask(task *model.Task, id string) (int, error) {
 func (s *TaskService) DeleteTask(id string) (int, error) {
 	return s.repo.DeleteTask(id)
 }
+
+func (s *TaskService) SearchTask(query, queryType string) ([]model.Task, error) {
+	return s.repo.SearchTask(query, queryType)
+}

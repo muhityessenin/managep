@@ -3,10 +3,12 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"managep/pkg/service"
+	"managep/pkg/validator"
 )
 
 type Handler struct {
-	services *service.Service
+	services  *service.Service
+	validator *validator.Validator
 }
 
 func NewHandler(services *service.Service) *Handler {
