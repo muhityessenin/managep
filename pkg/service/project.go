@@ -19,11 +19,29 @@ func (s *ProjectService) CreateProject(project *model.Project) (int, error) {
 }
 
 func (s *ProjectService) GetProject() ([]model.Project, error) {
-	return s.repo.GetProject()
+	result, err := s.repo.GetProject()
+	if err != nil {
+		return make([]model.Project, 0), err
+	}
+	for i := range result {
+		result[i].StartDate = result[i].StartDate[:10]
+		if len(result[i].FinishDate) >= 10 {
+			result[i].FinishDate = result[i].FinishDate[:10]
+		}
+	}
+	return result, nil
 }
 
 func (s *ProjectService) GetProjectById(id string) (model.Project, error) {
-	return s.repo.GetProjectById(id)
+	result, err := s.repo.GetProjectById(id)
+	if err != nil {
+		return model.Project{}, err
+	}
+	result.StartDate = result.StartDate[:10]
+	if len(result.FinishDate) >= 10 {
+		result.FinishDate = result.FinishDate[:10]
+	}
+	return result, nil
 }
 
 func (s *ProjectService) UpdateProject(project *model.Project, id string) (int, error) {
@@ -35,9 +53,29 @@ func (s *ProjectService) DeleteProject(id string) (int, error) {
 }
 
 func (s *ProjectService) SearchProject(query, queryType string) ([]model.Project, error) {
-	return s.repo.SearchProject(query, queryType)
+	result, err := s.repo.SearchProject(query, queryType)
+	if err != nil {
+		return make([]model.Project, 0), err
+	}
+	for i := range result {
+		result[i].StartDate = result[i].StartDate[:10]
+		if len(result[i].FinishDate) >= 10 {
+			result[i].FinishDate = result[i].FinishDate[:10]
+		}
+	}
+	return result, nil
 }
 
 func (s *ProjectService) GetTasksForProject(projectId string) ([]model.Task, error) {
-	return s.repo.GetTasksForProject(projectId)
+	result, err := s.repo.GetTasksForProject(projectId)
+	if err != nil {
+		return make([]model.Task, 0), err
+	}
+	for i := range result {
+		result[i].CreatedAt = result[i].CreatedAt[:10]
+		if len(result[i].FinishedAt) >= 10 {
+			result[i].FinishedAt = result[i].FinishedAt[:10]
+		}
+	}
+	return result, nil
 }

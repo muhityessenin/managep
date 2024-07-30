@@ -4,6 +4,7 @@ import (
 	_ "managep"
 	"managep/pkg/model"
 	"managep/pkg/repository"
+	"net/http"
 )
 
 type UserService struct {
@@ -26,13 +27,18 @@ func (u *UserService) GetUser() ([]model.User, error) {
 }
 
 func (u *UserService) GetUserById(id string) (model.User, error) {
-	return u.repo.GetUserById(id)
+	res, err := u.repo.GetUserById(id)
+	if err != nil {
+		return model.User{}, err
+	}
+	res.RegistrationDate = res.RegistrationDate[:10]
+	return res, nil
 }
 
 func (u *UserService) CreateUser(user *model.User) (int, error) {
 	res, err := u.repo.CreateUser(user)
 	if err != nil {
-		return 404, err
+		return http.StatusBadRequest, err
 	}
 	return res, nil
 }
@@ -46,9 +52,24 @@ func (u *UserService) DeleteUser(id string) (int, error) {
 }
 
 func (u *UserService) GetTasksForUser(id string) ([]model.Task, error) {
-	return u.repo.GetTasksForUser(id)
+	res, err := u.repo.GetTasksForUser(id)
+	if err != nil {
+		return make([]model.Task, 0), err
+	}
+	for i := range res {
+		res[i].CreatedAt = res[i].CreatedAt[:10]
+		if len(res[i].FinishedAt) >= 10 {
+			res[i].FinishedAt = res[i].FinishedAt[:10]
+		}
+	}
+	return res, nil
 }
 
 func (u *UserService) SearchUser(query, queryType string) (model.User, error) {
-	return u.repo.SearchUser(query, queryType)
+	res, err := u.repo.SearchUser(query, queryType)
+	if err != nil {
+		return model.User{}, err
+	}
+	res.RegistrationDate = res.RegistrationDate[:10]
+	return res, nil
 }

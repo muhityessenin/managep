@@ -96,7 +96,7 @@ func (p *ProjectPostgres) GetProjectById(id string) (model.Project, error) {
 	}
 	var project model.Project
 	for rows.Next() {
-		if err := rows.Scan(&project.Id, &project.Name, &project.Description, &project.FinishDate, &project.FinishDate, &project.Manager); err != nil {
+		if err := rows.Scan(&project.Id, &project.Name, &project.Description, &project.StartDate, &project.FinishDate, &project.Manager); err != nil {
 			return model.Project{}, err
 		}
 	}
