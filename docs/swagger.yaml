@@ -101,6 +101,9 @@ definitions:
     type: object
 info:
   contact: {}
+  description: API Server for Project Management App
+  title: Project Management
+  version: "1.0"
 paths:
   /projects:
     get:

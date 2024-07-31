@@ -1014,12 +1014,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "1.0",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Project Management",
+	Description:      "API Server for Project Management App",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

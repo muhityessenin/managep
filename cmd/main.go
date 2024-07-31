@@ -14,6 +14,9 @@ import (
 	"os"
 )
 
+// @title Project Management
+// @version 1.0
+// @description API Server for Project Management App
 func main() {
 	logrus.SetFormatter(new(logrus.JSONFormatter))
 	if err := initConfig(); err != nil {
