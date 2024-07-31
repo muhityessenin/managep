@@ -4,13 +4,13 @@ WORKDIR /usr/local/src
 
 RUN apk --no-cache add bash git make gcc gettext musl-dev
 
-
 #dependencies
 COPY ["go.sum", "go.mod", "./"]
 RUN go mod download
 
 #build
 COPY ./ ./
+RUN chmod +x wait-for-postgres.sh
 RUN go build -o app ./cmd
 
 FROM alpine AS runner

@@ -2,23 +2,30 @@ version: '3.8'
 
 services:
   managep:
-    build: ./
-    command: ./app
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8001:8001"
+    env_file:
+      - .env
     depends_on:
-      - db
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5437
-      - DB_PASSWORD=muhit9845
+      db:
+        condition: service_healthy
+
 
   db:
-    image: postgres:latest
-    volumes:
-      - ./.database/postgres/data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: muhit9845
+    image: postgres:16.3
     ports:
       - "5437:5432"
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=managep
+      - POSTGRES_PASSWORD=muhit9845
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 3s
+      timeout: 5s
+      retries: 5
