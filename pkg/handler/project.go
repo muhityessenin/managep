@@ -35,7 +35,7 @@ func (h *Handler) getProject(c *gin.Context) {
 // @Tags projects
 // @Accept json
 // @Produce json
-// @Param project body model.Project true "Project info"
+// @Param project body model.ProjectInputResponse true "Project info"
 // @Success 201 {object} Response
 // @Failure 400 {object} Response
 // @Failure 400 {object} Response
@@ -94,7 +94,7 @@ func (h *Handler) getProjectById(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Project ID"
-// @Param project body model.Project true "Project info"
+// @Param project body model.ProjectInputResponse true "Project info"
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response

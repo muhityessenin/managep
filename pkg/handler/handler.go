@@ -2,11 +2,11 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-
 	_ "github.com/swaggo/files"
 	swaggerFiles "github.com/swaggo/files"
 	_ "github.com/swaggo/gin-swagger"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"managep/pkg/model"
 	"managep/pkg/service"
 	"managep/pkg/validator"
 )
@@ -22,7 +22,7 @@ func NewHandler(services *service.Service) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
-	router.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	user := router.Group("/users")
 	{
 		user.GET("", h.getUser)
@@ -53,4 +53,36 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		project.GET("/:id/tasks", h.getTasksForProject)
 	}
 	return router
+}
+
+func (h *Handler) ParseUserResponse(user *model.User) model.UserInputResponse {
+	return model.UserInputResponse{
+		FullName:         user.FullName,
+		Email:            user.Email,
+		RegistrationDate: user.RegistrationDate[:10],
+		Role:             user.Role,
+	}
+}
+
+func (h *Handler) ParseTaskInputResponse(task *model.Task) model.TaskInputResponse {
+	return model.TaskInputResponse{
+		Name:              task.Name,
+		Description:       task.Description,
+		Priority:          task.Priority,
+		State:             task.State,
+		ResponsiblePerson: task.ResponsiblePerson,
+		Project:           task.Project,
+		CreatedAt:         task.CreatedAt[:10],
+		FinishedAt:        task.FinishedAt[:10],
+	}
+}
+
+func (h *Handler) ParseProjectInputResponse(project *model.Project) model.ProjectInputResponse {
+	return model.ProjectInputResponse{
+		Name:        project.Name,
+		Description: project.Description,
+		StartDate:   project.StartDate[:10],
+		FinishDate:  project.FinishDate[:10],
+		Manager:     project.Manager,
+	}
 }

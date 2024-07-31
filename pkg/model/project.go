@@ -8,3 +8,11 @@ type Project struct {
 	FinishDate  string `json:"finishDate"`
 	Manager     string `json:"manager"`
 }
+
+type ProjectInputResponse struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	StartDate   string `json:"startDate"`
+	FinishDate  string `json:"finishDate"`
+	Manager     string `json:"manager"`
+}

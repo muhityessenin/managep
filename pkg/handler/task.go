@@ -35,7 +35,7 @@ func (h *Handler) getTask(c *gin.Context) {
 // @Tags tasks
 // @Accept json
 // @Produce json
-// @Param task body model.Task true "Task info"
+// @Param task body model.TaskInputResponse true "Task info"
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
 // @Failure 400 {object} Response
@@ -94,7 +94,7 @@ func (h *Handler) getTaskById(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "Task ID"
-// @Param task body model.Task true "Task info"
+// @Param task body model.TaskInputResponse true "Task info"
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response

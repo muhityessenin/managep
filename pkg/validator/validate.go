@@ -22,8 +22,11 @@ func (v *Validator) ValidateUserInput(user model.User) bool {
 	if !re.MatchString(user.Email) {
 		return false
 	}
-	_, err := time.Parse("2006-01-02", user.RegistrationDate)
+	t, err := time.Parse("2006-01-02", user.RegistrationDate)
 	if err != nil {
+		return false
+	}
+	if t.Before(time.Now()) {
 		return false
 	}
 	if user.Role == "" {
@@ -50,8 +53,11 @@ func (v *Validator) ValidateTaskInput(task model.Task) bool {
 	if task.Project == "" {
 		return false
 	}
-	_, err := time.Parse("2006-01-02", task.CreatedAt)
+	t, err := time.Parse("2006-01-02", task.CreatedAt)
 	if err != nil {
+		return false
+	}
+	if t.Before(time.Now()) {
 		return false
 	}
 	return true
@@ -68,11 +74,16 @@ func (v *Validator) ValidateProjectInput(project model.Project) bool {
 	if err != nil {
 		return false
 	}
-	finishDate, err := time.Parse("2006-01-02", project.FinishDate)
-	if err != nil {
-		return false
+	if project.FinishDate != "" {
+		finishDate, err := time.Parse("2006-01-02", project.FinishDate)
+		if err != nil {
+			return false
+		}
+		if finishDate.Before(startDate) {
+			return false
+		}
 	}
-	if finishDate.Before(startDate) {
+	if startDate.Before(time.Now()) {
 		return false
 	}
 	return true

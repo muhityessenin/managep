@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 	"managep"
 	_ "managep"
+	_ "managep/docs"
 	"managep/pkg/handler"
 	"managep/pkg/repository"
 	"managep/pkg/service"

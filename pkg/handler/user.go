@@ -43,7 +43,7 @@ func (h *Handler) getUser(c *gin.Context) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param user body model.User true "User info"
+// @Param user body model.UserInputResponse true "User info"
 // @Success 201 {object} Response
 // @Failure 400 {object} Response
 // @Failure 400 {object} Response
@@ -102,7 +102,7 @@ func (h *Handler) getUserById(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Param user body model.User true "User info"
+// @Param user body model.UserInputResponse true "User info"
 // @Success 200 {object} Response
 // @Failure 400 {object} Response
 // @Failure 400 {object} Response

@@ -22,6 +22,19 @@ definitions:
       startDate:
         type: string
     type: object
+  model.ProjectInputResponse:
+    properties:
+      description:
+        type: string
+      finishDate:
+        type: string
+      manager:
+        type: string
+      name:
+        type: string
+      startDate:
+        type: string
+    type: object
   model.Task:
     properties:
       created_at:
@@ -43,6 +56,25 @@ definitions:
       state:
         type: string
     type: object
+  model.TaskInputResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      finished_at:
+        type: string
+      name:
+        type: string
+      priority:
+        type: string
+      project:
+        type: string
+      responsible_person:
+        type: string
+      state:
+        type: string
+    type: object
   model.User:
     properties:
       email:
@@ -50,6 +82,17 @@ definitions:
       full_name:
         type: string
       id:
+        type: string
+      registration_date:
+        type: string
+      role:
+        type: string
+    type: object
+  model.UserInputResponse:
+    properties:
+      email:
+        type: string
+      full_name:
         type: string
       registration_date:
         type: string
@@ -90,7 +133,7 @@ paths:
         name: project
         required: true
         schema:
-          $ref: '#/definitions/model.Project'
+          $ref: '#/definitions/model.ProjectInputResponse'
       produces:
       - application/json
       responses:
@@ -169,7 +212,7 @@ paths:
         name: project
         required: true
         schema:
-          $ref: '#/definitions/model.Project'
+          $ref: '#/definitions/model.ProjectInputResponse'
       produces:
       - application/json
       responses:
@@ -282,7 +325,7 @@ paths:
         name: task
         required: true
         schema:
-          $ref: '#/definitions/model.Task'
+          $ref: '#/definitions/model.TaskInputResponse'
       produces:
       - application/json
       responses:
@@ -361,7 +404,7 @@ paths:
         name: task
         required: true
         schema:
-          $ref: '#/definitions/model.Task'
+          $ref: '#/definitions/model.TaskInputResponse'
       produces:
       - application/json
       responses:
@@ -458,7 +501,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/model.User'
+          $ref: '#/definitions/model.UserInputResponse'
       produces:
       - application/json
       responses:
@@ -537,7 +580,7 @@ paths:
         name: user
         required: true
         schema:
-          $ref: '#/definitions/model.User'
+          $ref: '#/definitions/model.UserInputResponse'
       produces:
       - application/json
       responses:
