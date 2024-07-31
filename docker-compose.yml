@@ -21,11 +21,8 @@ services:
     env_file:
       - .env
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=managep
-      - POSTGRES_PASSWORD=muhit9845
+      - POSTGRES_USER=$DB_USER
+      - POSTGRES_DB=$DB_NAME
+      - POSTGRES_PASSWORD=$DB_PASSWORD
     healthcheck:
       test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
-      interval: 3s
-      timeout: 5s
-      retries: 5
