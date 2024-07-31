@@ -23,11 +23,11 @@ func main() {
 		logrus.Fatalf("Error loading .env files, %s", err)
 	}
 	db, err := repository.NewPostgresDB(repository.Config{
-		Host:     viper.GetString("db.host"),
-		Port:     viper.GetString("db.port"),
-		Username: viper.GetString("db.username"),
+		Host:     os.Getenv("DB_HOST"),
+		Port:     os.Getenv("DB_PORT"),
+		Username: os.Getenv("DB_USER"),
 		Password: os.Getenv("DB_PASSWORD"),
-		DBName:   viper.GetString("db.dbname"),
+		DBName:   os.Getenv("DB_NAME"),
 		SSLMode:  viper.GetString("db.sslmode"),
 	})
 	if err != nil {
